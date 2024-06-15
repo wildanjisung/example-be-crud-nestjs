@@ -6,6 +6,8 @@ Backend example for implement JWT with frontend vue
 ```
 git clone git@github.com:wildanjisung/example-be-crud-nestjs.git
 ```
+- copy .example.env ke file .env (jika belum ada buat dulu)
+
 - install package
 ```
 npm install
