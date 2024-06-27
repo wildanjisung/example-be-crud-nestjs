@@ -6,7 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import configuration from './config/configuration';
-
+import { TypeOrmModule } from '@nestjs/typeorm';
 @Module({
   imports: [
     PhotoModule,
@@ -16,7 +16,15 @@ import configuration from './config/configuration';
       envFilePath: ['.development.env', '.env'],
       isGlobal: true,
       load: [configuration],
-    })],
+    }),
+    TypeOrmModule.forRoot({
+      type: 'sqlite',
+      database: './src/database/database.sqlite',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: true,
+      logging: true,
+    }),
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

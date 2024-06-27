@@ -4,35 +4,26 @@ import { UpdatePhotoDto } from './dto/update-photo.dto';
 import { Repository } from 'typeorm';
 import { Photo } from './entities/photo.entity';
 import { FilterOperator, FilterSuffix, PaginateQuery, paginate, Paginated } from 'nestjs-paginate'
+import { PhotoRepository } from './photo.repository';
+import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class PhotoService {
   constructor(
-    @Inject('PHOTO_REPOSITORY')
-    private photoRepository: Repository<Photo>,
-
+    private photoRepository: PhotoRepository,
   ) {}
 
   async create(createPhotoDto: CreatePhotoDto): Promise<Photo> {
-    return this.photoRepository.save(createPhotoDto);
+    const photo = plainToClass(Photo, createPhotoDto);
+    return this.photoRepository.create(photo);
   }
 
-  findAll(query: PaginateQuery): Promise<Paginated<Photo>> {
-    return paginate(query, this.photoRepository, {
-      sortableColumns: ['id', 'name', 'description', 'views'],
-      nullSort: 'last',
-      defaultSortBy: [['id', 'DESC']],
-      searchableColumns: ['name', 'description', 'views'],
-      select: ['id', 'name', 'description', 'views', 'isPublished'],
-      filterableColumns: {
-        name: [FilterOperator.EQ, FilterSuffix.NOT],
-        views: true,
-      },
-    })
+  async findAll(query: PaginateQuery): Promise<Paginated<Photo>> {
+    return this.photoRepository.getAll(query);
   }
 
   async findOne(id: string): Promise<Photo> {
-    const photo = await this.photoRepository.findOne({ where: { id } })
+    const photo = await this.photoRepository.getOne(id)
     if (!photo) {
       throw new NotFoundException(
         `Photo not found with Id ${id} not found`,
@@ -44,12 +35,12 @@ export class PhotoService {
   async update(id: string, updatePhotoDto: UpdatePhotoDto) {
     const photo = await this.findOne(id)
 
-    return await this.photoRepository.save(photo);
+    return await this.photoRepository.update(id, photo);
   }
 
   async remove(id: string) {
     const photo = await this.findOne(id)
 
-    return await this.photoRepository.remove(photo);
+    return await this.photoRepository.delete(id);
   }
 }

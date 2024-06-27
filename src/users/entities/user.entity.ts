@@ -13,10 +13,5 @@ export class User {
   role: string;
 
   @Column()
-  @Exclude()
   password: string;
-
-  constructor(partial: Partial<User>) {
-    Object.assign(this, partial);
-  }
 }
